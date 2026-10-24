@@ -47,10 +47,10 @@ from torchvision.models.feature_extraction import create_feature_extractor
 # =============================================================================
 
 MODEL_FILES = [
-    "TURTLES_BASESIZE[320]_RESIZE[512]_BACKBONE[SWIN_S]_LOSS[QFL_KFIOU_IMGHEAD]_COLOR[GREY].pth",
-    "TURTLES_BASESIZE[512]_RESIZE[512]_BACKBONE[EFFICIENTNET_B5]_LOSS[QFL_KFIOU_IMGHEAD]_COLOR[RGB].pth",
-    "TURTLES_BASESIZE[512]_RESIZE[512]_BACKBONE[SWIN_S]_LOSS[QFL_KFIOU_IMGHEAD]_COLOR[RGB].pth",
-    "TURTLES_BASESIZE[1024]_RESIZE[512]_BACKBONE[EFFICIENTNET_B5]_LOSS[QFL_KFIOU_IMGHEAD]_COLOR[RGB].pth",
+    "turtlevision_swin_320_gray.pth",
+    "turtlevision_b5_512_rgb.pth",
+    "turtlevision_swin_512_rgb.pth",
+    "turtlevision_b5_1024_rgb.pth",
 ]
 
 #### DO NOT CHANGE THIS
@@ -161,8 +161,14 @@ class El_Modelo(nn.Module):
 
 
 def parse_name(path):
-    m = re.search(r"BASESIZE\[(\d+)\]_RESIZE\[(\d+)\]_BACKBONE\[([^\]]+)\].*_COLOR\[([^\]]+)\]", path.stem)
-    return dict(name=path.stem, basesize=int(m[1]), resize=int(m[2]), backbone=m[3].lower(), color=m[4])
+    m = re.fullmatch(r"turtlevision_(swin|b5)_(320|512|1024)_(rgb|gray)", path.stem)
+    return dict(
+        name=path.stem,
+        basesize=int(m[2]),
+        resize=512,
+        backbone={"swin": "swin_s", "b5": "efficientnet_b5"}[m[1]],
+        color={"rgb": "RGB", "gray": "GREY"}[m[3]],
+    )
 
 
 def load_model(path, backbone):
