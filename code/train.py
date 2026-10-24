@@ -400,7 +400,7 @@ def train_epoch(model, loader, optimizer):
 
 
 def train_model(size, backbone, color, args):
-    name = f"TURTLES_BASESIZE[{size}]_RESIZE[{IMG_SIZE}]_BACKBONE[{backbone.upper()}]_LOSS[QFL_KFIOU_IMGHEAD]_COLOR[{color}]"
+    name = f"turtlevision_{'swin' if backbone == 'swin_s' else 'b5'}_{size}_{'gray' if color == 'GREY' else 'rgb'}"
     print(f"\n### {name}")
     random.seed(13)
     np.random.seed(13)
