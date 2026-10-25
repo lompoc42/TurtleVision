@@ -57,3 +57,5 @@ Patches without tracks are equally important. Their label files may be empty or 
 Both `train` and `val` should contain positive and negative examples, since validation measures both TPR and TNR.
 
 If a bounding box crosses a patch boundary, its label must describe only the portion inside the patch. Simply moving the outside corners onto the patch boundary is insufficient.
+
+An example of the required dataset organization is provided in training_data_structure_example/. Images are placeholders, provided solely to illustrate the expected folder structure and annotation format.
