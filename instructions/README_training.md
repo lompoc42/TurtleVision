@@ -3,33 +3,33 @@
 Train all four ensemble models from ImageNet weights:
 
 ```bash
-python train.py --data path/to/my_dataset
+python code/train.py --data path/to/my_dataset
 ```
 
 Or start from the released weights:
 
 ```bash
-python train.py --data path/to/my_dataset --weights weights/
+python code/train.py --data path/to/my_dataset --weights weights/
 ```
 
-Trained models are saved to `runs/` (change it with `--out`) under the same file names as the released weights. To use them:
+Trained models are saved to `runs/` (change it with `--out`) under the same filenames as the released weights. To use them:
 
 ```bash
-python infer.py --data path/to/images --weights runs/
+python code/infer.py --data path/to/images --weights runs/
 ```
 
-| Start       | Epochs   | Stops early                             |
-|-------------|----------|-----------------------------------------|
-| ImageNet    | up to 42 | after 21 epochs without a wGeoAcc gain  |
-| `--weights` | 13       | never                                   |
+| Start | Epochs | Early stopping |
+|---|---|---|
+| ImageNet | Up to 42 | After 21 epochs without a wGeoAcc improvement |
+| Released weights (`--weights`) | 13 | Runs all 13 epochs |
 
-Each model keeps its epoch with the best validation wGeoAcc.
+Each model keeps the checkpoint with the best validation wGeoAcc.
 
-The paper's models started from DOTA pretraining, so training from ImageNet won't reproduce them exactly. The inference thresholds were tuned for the released weights, so retrained models may need different ones.
+The paper's models started from DOTA pretraining, so training from ImageNet will not reproduce them exactly. The inference thresholds were calibrated for the released weights, so retrained models may require different thresholds.
 
 ### Data
 
-```
+```text
 my_dataset/
 ├── patch_320/
 │   ├── images/
@@ -38,20 +38,22 @@ my_dataset/
 │   └── labels/
 │       ├── train/
 │       └── val/
-├── patch_512/     same as patch_320
-└── patch_1024/    same as patch_320
+├── patch_512/     same structure as patch_320
+└── patch_1024/    same structure as patch_320
 ```
 
-`patch_320/` holds square 320 × 320 patches cut from your images, and so on. Images are `.jpg` or `.png`. Each image's label file has the same name, ending in `.txt`.
+`patch_320/` contains square 320 × 320 image patches, and likewise for the other sizes. Images must be `.jpg` or `.png`. Each image's label file has the same filename, with a `.txt` extension.
 
-A label file has one line per track box:
+Each label file contains one line per turtle track:
 
-```
+```text
 0 x1 y1 x2 y2 x3 y3 x4 y4
 ```
 
-`0` is the class (always 0). The rest are the box's four corners, divided by the patch width and height so they fall between 0 and 1.
+`0` identifies the class. The remaining values represent the four corners of the bounding box, normalized by the patch width and height to fall between 0 and 1.
 
-Patches with no tracks matter as much as patches with them. Give them an empty label file, or none. The paper used about 5 patches without tracks for every patch with one; the script uses whatever is in the folders. Both `train` and `val` need both kinds, since validation scores TPR and TNR.
+Patches without tracks are equally important. Their label files may be empty or absent. The paper used approximately five negative patches for every positive patch, although the script trains on whatever is provided.
 
-If a box crosses a patch edge, its label should cover only the part inside the patch. Moving the outside corners onto the edge is not enough.
+Both `train` and `val` should contain positive and negative examples, since validation measures both TPR and TNR.
+
+If a bounding box crosses a patch boundary, its label must describe only the portion inside the patch. Simply moving the outside corners onto the patch boundary is insufficient.
